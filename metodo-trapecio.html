@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Trapecio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Método de Trapecio</h1>
+        <form id="trapecioForm">
+            <label for="equation">Ecuación (función de x):</label>
+            <input type="text" id="equation" name="equation" value="sqrt(x)" required>
+            
+            <label for="a">Límite Inferior (a):</label>
+            <input type="number" id="a" name="a" step="0.01" required>
+            
+            <label for="b">Límite Superior (b):</label>
+            <input type="number" id="b" name="b" step="0.01" required>
+            
+            <label for="n">Número de Subintervalos (n):</label>
+            <input type="number" id="n" name="n" step="1" min="1" required>
+            
+            <label for="resultadoExacto">Resultado Exacto:</label>
+            <input type="number" id="resultadoExacto" name="resultadoExacto" step="0.0001" required>
+            
+            <button type="button" onclick="calcularTrapecio()">Calcular</button>
+        </form>
+        <div id="resultado">
+        </div>
+        <a href="index.html">Volver al Menú</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.2.0/math.min.js"></script>
+    <script>
+
+        //Se obtienen los valores del formulario
+        function calcularTrapecio() {
+            var a = parseFloat(document.getElementById('a').value); // a=0
+            var b = parseFloat(document.getElementById('b').value); // b=2
+            var n = parseInt(document.getElementById('n').value); // n=5
+            var equation = document.getElementById('equation').value; //sqrt(x)
+            var resultadoExacto = parseFloat(document.getElementById('resultadoExacto').value); // =1.8856
+
+            try {
+                // Compila la ecuación ingresada (f es sqrt(x))
+                var f = math.compile(equation);
+
+                // Calcula el ancho del intervalo
+                var h = (b - a) / n; // h= (2-0) / 5= 0.4
+                var sum = 0; // inicializa la suma
+
+                // Suma los valores de la función en los puntos internos
+                for (var i = 1; i < n; i++) {
+                    sum += f.evaluate({ x: a + i * h });
+                    // i=1: x=0+1*0.4=0.4, sqrt(0.4)= 0.632456
+                    // i=2: x=0+2*0.4=0.8, sqrt(0.8)= 0.894427
+                    // i=3: x=0+3*0.4=1.2, sqrt(1.2)= 1.095445
+                    // i=4: x=0+4*0.4=1.6, sqrt(1.6)= 1.264911
+                    //suma= 0.63246 + 0.894427 + 1.095445 + 1.264911= 3.887239
+                }
+
+                // Aplica la fórmula del método de trapecio
+                var resultado = (h / 2) * (f.evaluate({ x: a }) + 2 * sum + f.evaluate({ x: b }));
+                // (0.4/2)* (sqrt(0)) + 2 * 3.887239 + (sqrt(2))= 1.837738
+
+                // Calcular el porcentaje de error
+                function porcentajeError(aproximada, exacta) {
+                    return Math.abs((aproximada - exacta) / exacta) * 100;
+                    // =1.837738 - 1.8856 / 1.8856 x100= 2.54%
+                }
+
+                var error = porcentajeError(resultado, resultadoExacto);
+
+                // Mostrar los resultados en la interfaz
+                document.getElementById('resultado').innerHTML = "Resultado: " + resultado.toFixed(6) + "<br> % de Error: " + error.toFixed(2) + "%";
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = 'Error al evaluar la ecuación. Por favor, verifique la sintaxis.';
+            } // resultado= 1.837738, %error= 2.54%
+        }
+    </script>
+</body>
+</html>
+
+
+

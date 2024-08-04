@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Simpson 1/3</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Método de Simpson 1/3</h1>
+        <form id="simpsonForm">
+            <label for="function">Función f(x):</label>
+            <input type="text" id="function" name="function" value="1 - x - 4 * x^3 + 3 * x^5" required>
+            
+            <label for="a">Límite Inferior (a):</label>
+            <input type="number" id="a" name="a" step="0.01" required>
+            
+            <label for="b">Límite Superior (b):</label>
+            <input type="number" id="b" name="b" step="0.01" required>
+            
+            <label for="n">Número de Subintervalos (n):</label>
+            <input type="number" id="n" name="n" step="1" min="2" required>
+            
+            <label for="exactValue">Valor Exacto:</label>
+            <input type="number" id="exactValue" name="exactValue" step="0.01" required>
+            
+            <button type="button" onclick="calcularSimpson()">Calcular</button>
+        </form>
+        <div id="resultado">
+        </div>
+        <a href="index.html">Volver al Menú</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.2.0/math.min.js"></script>
+    <script>
+        function calcularSimpson() {
+            //Obtener valores del formulario
+            var func = document.getElementById('function').value; // 1-x-4 * x^3 + 3 * x^5
+            var a = parseFloat(document.getElementById('a').value); // -3
+            var b = parseFloat(document.getElementById('b').value); // 5
+            var n = parseInt(document.getElementById('n').value); // 4
+            var valorExacto = parseFloat(document.getElementById('exactValue').value); // 6904
+
+            // Verifica que n sea par
+            if (n % 2 !== 0) {
+                document.getElementById('resultado').innerHTML = 'El número de subintervalos (n) debe ser par.';
+                return; // n = 4, es par, continuamos
+            }
+
+            try {
+                // Compila la función ingresada
+                var f = math.compile(func); // f es la funcion 
+                // Calcular el ancho del intervalo (h)
+                var h = (b - a) / n; // h= (5-(-3)) / 4= 2
+                var sum1 = 0; // suma para terminos impares
+                var sum2 = 0; // suma para terminos pares
+
+                // Calcula las sumas para los términos impares
+                for (var i = 1; i < n; i += 2) {
+                    sum1 += f.evaluate({ x: a + i * h });
+                    // i= 1: x= -3+1*2= -1, f(-1)= 1- (-1)-4* (-1)^3 +3 * (-1)^5= 3 ->sum1
+                    // -3 + 3*2=3, f(3)= 1-3-4(3)^3 +3(3)^5= 619 -> sum1
+                    // sum1= 3+619= 622
+                }
+                // Calcula las sumas para terminos pares
+                for (var i = 2; i < n; i += 2) {
+                    sum2 += f.evaluate({ x: a + i * h });
+                    // -3+2*2=1, f(1)=1-1-4(1)^3 +3(1)^5= -1 ->sum2
+                
+                }
+
+                // Calcula el resultado utilizando la fórmula de Simpson 1/3
+                var resultado = (h / 3) * (f.evaluate({ x: a }) + 4 * sum1 + 2 * sum2 + f.evaluate({ x: b }));
+                // evaluamos con a f(-3)= 1-(-3)-4* (-3)^3 + 3* (-3)^5= -617
+                // evaluamos con b f(5)= 1-5-4* 5^3 + 3* 5^5= 8871
+                //= 2/3 * (-617 + 4* 622 + 2* (-1) + 8871)= 7160
+
+                // Calcula el % de error
+                var error = Math.abs((resultado - valorExacto) / valorExacto) * 100;
+                //(7160-6904)/6904* 100= 3.71%
+
+                document.getElementById('resultado').innerHTML = 
+                    "Resultado: " + resultado.toFixed(6) + "<br>" + //7160
+                    "Valor Exacto: " + valorExacto.toFixed(6) + "<br>" + //6904
+                    "Porcentaje de Error: " + error.toFixed(2) + "%"; //3.71%
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = 'Error al evaluar la función. Por favor, verifique la sintaxis.';
+                console.error(error); // Verifica el error
+            }
+        }
+    </script>
+</body>
+</html>

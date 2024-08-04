@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Euler</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Método de Euler</h1>
+        <form id="eulerForm">
+            <label for="function">Función f(x, y):</label>
+            <input type="text" id="function" name="function" value="0.1 * sqrt(y) + 0.4 * x^2" required>
+            
+            <label for="x0">Valor Inicial x0:</label>
+            <input type="number" id="x0" name="x0" step="0.01" required>
+            
+            <label for="y0">Valor Inicial y0:</label>
+            <input type="number" id="y0" name="y0" step="0.01" required>
+            
+            <label for="xf">Valor Final xf:</label>
+            <input type="number" id="xf" name="xf" step="0.01" required>
+            
+            <label for="h">Tamaño del Paso h:</label>
+            <input type="number" id="h" name="h" step="0.01" required>
+            
+            <button type="button" onclick="calcularEuler()">Calcular</button>
+        </form>
+        <div id="resultado">
+           
+        </div>
+        <a href="index.html">Volver al Menú</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.2.0/math.min.js"></script>
+    <script>
+        function calcularEuler() {
+            //Obtener valores del formulario
+            var func = document.getElementById('function').value;
+            var x0 = parseFloat(document.getElementById('x0').value); //2
+            var y0 = parseFloat(document.getElementById('y0').value); //4
+            var xf = parseFloat(document.getElementById('xf').value); //2.5
+            var h = parseFloat(document.getElementById('h').value); //0.05
+
+            try {
+                // Compila la función ingresada
+                var f = math.compile(func);
+                // inicializa x y y con los valores iniciales
+                var x = x0; 
+                var y = y0;
+                var resultados = []; //Arreglo donde se guardan resultados
+                
+                // Itera aplicando formula de método de Euler desde x0 hasta xf
+                while (x <= xf) { // mientras x sea igual o menor que xf
+                    resultados.push({ x: x, y: y }); // guarda valores actuales de x, y en arreglo resultados
+                    y = y + h * f.evaluate({ x: x, y: y }); // calcula nuevo valor de y 
+                    // iteracion 1: 
+                    // se evalua f(2,4)= 0.1 * sqrt(4) + 0.4 * 2^2= 1.8
+                    // 4 + 0.05 * 1.8= 4.09 -> nuevo valor y
+                    x = x + h; // incrementa x
+                    // 2+0.05= 2.05 -> nuevo valor de x
+                }
+                
+                // Muestra los resultados
+                var resultadoHTML = "<h2>Resultados:</h2><ul>";
+                resultados.forEach(function (punto) {
+                    resultadoHTML += "<li>x: " + punto.x.toFixed(2) + ", y: " + punto.y.toFixed(2) + "</li>";
+                });
+                resultadoHTML += "</ul>";
+                
+                document.getElementById('resultado').innerHTML = resultadoHTML;
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = 'Error al evaluar la función. Por favor, verifique la sintaxis.';
+                console.error(error); // Verifica el error
+            }
+        }
+    </script>
+</body>
+</html>

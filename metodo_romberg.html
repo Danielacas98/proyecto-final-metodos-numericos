@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Romberg</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Método de Romberg</h1>
+        <form id="rombergForm">
+            <label for="equation">Introduce la ecuación (usa 'Math' para funciones):</label>
+            <input type="text" id="equation" name="equation" value="Math.exp(x) * Math.sin(x) / (1 + Math.pow(x, 2))" required>
+            
+            <label for="a">Límite Inferior (a):</label>
+            <input type="number" id="a" name="a" step="0.01" required>
+            
+            <label for="b">Límite Superior (b):</label>
+            <input type="number" id="b" name="b" step="0.01" required>
+            
+            <label for="n">Número de Iteraciones (n):</label>
+            <input type="number" id="n" name="n" step="1" min="1" required>
+            
+            <button type="button" onclick="calcularRomberg()">Calcular</button>
+        </form>
+
+        </div>
+        <a href="index.html">Volver al Menú</a>
+        </div>
+        
+        <div id="resultado">
+            <p>Resultado de la Integral: <span id="resultadoIntegral"></span></p>
+            <p>% de Error Relativo: <span id="errorRelativo"></span></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.1/math.min.js"></script>
+    <script>
+    
+        function calcularRomberg() {
+            //Obtener los valores ingresados 
+            const a = parseFloat(document.getElementById('a').value); // 0
+            const b = parseFloat(document.getElementById('b').value); // 3
+            const n = parseInt(document.getElementById('n').value); // 3
+            const equation = document.getElementById('equation').value; // Math.exp(x) * Math.sin(x) / (1 + Math.pow(x, 2))
+
+            // Definir la función usando la ecuación ingresada
+            function funcion(x) {
+                return eval(equation);
+            }
+
+            // Método de Romberg
+            function romberg(a, b, n) {
+                // se inicializa la matriz R, para almacenar los resultados
+                const R = [];
+                for (let i = 0; i <= n; i++) {
+                    R[i] = [];
+                }
+                
+                // R[0][0] primer elemento con regla de trapecio 
+                R[0][0] = (b - a) * (funcion(a) + funcion(b)) / 2;
+                // 3-0 * f(0) + f(3) /2 = 0.4245
+
+                // extrapolación de richardson para refinar estimaciones
+                for (let i = 1; i <= n; i++) {
+                    // tamaño de paso h para la iteracion i 
+                    const h = (b - a) / Math.pow(2, i);
+                    // para i=1, (3-0)/2^1= 1.5
+                    let sum = 0;
+                    for (let k = 1; k <= Math.pow(2, i - 1); k++) {
+                        sum += funcion(a + (2 * k - 1) * h); //sumar valores de la funcion en puntos intermedios
+                        // 0 + (2*1-1)*1.5 = 1.5
+                        // f(1.5)= 1.376
+                    }
+                    // Se actualiza R[i][0], usando regla del trapecio ajustada para mejorar estimación
+                    R[i][0] = 0.5 * R[i - 1][0] + sum * h;
+                    // R[1][0]= 0.5 * 0.4245 + 1.376 * 1.5= 2.276
+
+                    //Actualiza los valores en tabla Romberg con formula Romberg
+                    for (let j = 1; j <= i; j++) {
+                        R[i][j] = (Math.pow(4, j) * R[i][j - 1] - R[i - 1][j - 1]) / (Math.pow(4, j) - 1);
+                        // R[1][1]= 4^1 * R[1][0]-R[0][0] / 4^1-1= 2.8927 -> resultado primera iteración
+                        // se hace lo mismo hasta conseguir R[3][3]
+                    }
+                }
+
+                // Cálculo del porcentaje de error relativo, entre estimación actual y estimación anterior
+                let errorRelativo = 0;
+                if (n > 0) {
+                    const Rn = R[n][n];
+                    const Rn_minus_1 = R[n-1][n-1];
+                    errorRelativo = Math.abs((Rn - Rn_minus_1) / Rn) * 100;
+                }
+                // R[n][n]- R[n-1][n-1] / R[n][n] * 100 = %0.66
+
+                return {
+                    resultado: R[n][n],
+                    errorRelativo: errorRelativo
+                };
+            }
+
+            // Obtener el resultado de la integral 
+            const { resultado, errorRelativo } = romberg(a, b, n);
+
+            // Mostrar el resultado en la interfaz
+            document.getElementById('resultadoIntegral').textContent = resultado.toFixed(6);
+            document.getElementById('errorRelativo').textContent = errorRelativo.toFixed(6) + '%';
+        }
+    </script>
+</body>
+</html>
+

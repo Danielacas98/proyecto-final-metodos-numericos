@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derivación Numerica</title>
+    <script src="script_der.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Derivación Numerica- Diferencias Finitas Centradas</h1>
+    <form id="diferenciasFinitasForm">
+        <label for="x">Introduce el valor de x:</label>
+        <input type="number" id="x" name="x" step="any" required>
+        <br><br>
+        <label for="h">Introduce el valor de h:</label>
+        <input type="number" id="h" name="h" step="any" required>
+        <br><br>
+        <label for="equation">Introduce la ecuación (usa 'Math' para funciones):</label>
+        <input type="text" id="equation" name="equation" value="Math.tan(x)" required>
+        <br><br>
+        <button type="button" onclick="calcularDerivadas()">Calcular Derivadas</button>
+    </form>
+    <h2>Resultados:</h2>
+    <p>Primera Derivada: <span id="resultadoPrimeraDerivada"></span></p>
+    <p>Primera Derivada Orden 4: <span id="resultadoPrimeraDerivadaO4"></span></p>
+    <p>Error (Primera Derivada): <span id="errorPrimeraDerivada"></span>%</p>
+    <p>Error (Primera Derivada Orden 4): <span id="errorPrimeraDerivadaO4"></span>%</p>
+    
+    </div>
+    <a href="index.html">Volver al Menú</a>
+    </div>
+</body>
+</html>
+
+

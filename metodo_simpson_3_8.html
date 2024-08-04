@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Simpson 3/8</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Método de Simpson 3/8</h1>
+        <form id="simpson38Form">
+            <label for="function">Función f(x):</label>
+            <input type="text" id="function" name="function" value="exp(x^2)" required>
+            
+            <label for="a">Límite Inferior (a):</label>
+            <input type="number" id="a" name="a" step="0.01" required>
+            
+            <label for="b">Límite Superior (b):</label>
+            <input type="number" id="b" name="b" step="0.01" required>
+            
+            <label for="n">Número de Subintervalos (n):</label>
+            <input type="number" id="n" name="n" step="1" min="3" required>
+            
+            <label for="exactValue">Valor Exacto:</label>
+            <input type="number" id="exactValue" name="exactValue" step="0.000001" value="16.452638" required>
+            
+            <button type="button" onclick="calcularSimpson38()">Calcular</button>
+        </form>
+        <div id="resultado">
+        </div>
+        <a href="index.html">Volver al Menú</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.2.0/math.min.js"></script>
+    <script>
+        function calcularSimpson38() {
+            // Obtener los valores ingresados
+            var func = document.getElementById('function').value; // exp (x^2)
+            var a = parseFloat(document.getElementById('a').value); // 0
+            var b = parseFloat(document.getElementById('b').value); // 2
+            var n = parseInt(document.getElementById('n').value); // 30 y 99
+            var exactValue = parseFloat(document.getElementById('exactValue').value); // 16.452638
+
+            // Verifica que n sea un múltiplo de 3
+            if (n % 3 !== 0) {
+                document.getElementById('resultado').innerHTML = 'El número de subintervalos (n) debe ser un múltiplo de 3.';
+                return;
+            }
+
+            try {
+                // Compila la función ingresada 
+                var f = math.compile(func);
+                var h = (b - a) / n; // (2-0)/99 = 0.0202020
+                var sum1 = 0; //inicializamos sumas , i mod3=1, 1,4,7,10..
+                var sum2 = 0; // i mod3=2, 2,5,8,11..
+                var sum3 = 0; // i mod3=0, 3,6,9,12..
+
+                // Calcula las sumas para los términos en los índices adecuados
+                for (var i = 1; i < n; i += 3) {
+                    sum1 += f.evaluate({ x: a + i * h });
+                    //x1= 0+1*0.020202= 0.0202020, f(0.020202)= exp (0.020202)^2= 1.00040
+                    //x4= 0+4*0.020202= =0.080808, f(0.080808)= exp (0.080808)^2= 1.00654
+                    //x7= 0+7*0.020202= 0.141414, f(0.141414)= exp (0.141414)^2= 1.02019
+                    // sum1= 1.00040 + 1.00654 + 1.02019= 3.02713
+                }
+                for (var i = 2; i < n; i += 3) {
+                    sum2 += f.evaluate({ x: a + i * h });
+                    //x2= 0+2*0.020202= 0.040404, f(0.04040)= exp(0.04040)^2= 1.00163
+                    //x5= 0+5*0.020202= 0.101010, f(0.10101)= exp(0.10101)^2= 1.01025
+                    //x8= 0+8*0.020202= 0.1616, f(0.1616)= exp(0.1616)^2= 1.02645
+                    //sum2= 1.00163 + 1.01025 + 1.02645= 3.03833
+                }
+                for (var i = 3; i < n; i += 3) {
+                    sum3 += f.evaluate({ x: a + i * h });
+                    //x3= 0+3*0.020202= 0.0606, f(0.0606)= exp(0.0606)^2= 1.00367
+                    //x6= 0+6*0.020202= 0.1212, f(0.1212)= exp(0.1212)^2= 1.01479
+                    //x9= 0+9*0.020202= 0.1818, f(0.1818)= exp(0.1818)^2= 1.03360
+                    //sum3= 1.00367 + 1.01479 + 1.03360= 3.05206
+                }
+
+                // Calcula el resultado utilizando la fórmula de Simpson 3/8
+                var resultado = (3 * h / 8) * (f.evaluate({ x: a }) + 3 * sum1 + 3 * sum2 + 2 * sum3 + f.evaluate({ x: b }));
+                //(3*0.020202)/8 * exp(0)^2 +3 *3.02713 +3* 3.03833 + 2* 3.05206 + exp(2)^2= 16.452638
+
+                // Calcula el % de error con respecto al valor exacto
+                var errorExacto = Math.abs((resultado - exactValue) / exactValue) * 100;
+                // 16.452638- 16.452638 / 16.452638 * 100= %0.00
+
+                // Muestra resultados
+                document.getElementById('resultado').innerHTML = 
+                    "Resultado: " + resultado.toFixed(6) + "<br>" +
+                    "Porcentaje de Error: " + errorExacto.toFixed(2) + "%"; 
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = 'Error al evaluar la función. Por favor, verifique la sintaxis.';
+                console.error(error); // Verifica si hay error
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
